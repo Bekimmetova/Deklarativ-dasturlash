@@ -1,0 +1,81 @@
+class Interval:
+    def __init__(self, lower, upper):
+        if lower > upper:
+            raise ValueError("Quyi chegara yuqori chegaradan katta bo‘lishi mumkin emas!")
+        self.lower = lower
+        self.upper = upper
+
+    def __repr__(self):
+        return f"[{self.lower}, {self.upper}]"
+
+    def __add__(self, other):
+        """Oraliqlarni qo‘shish."""
+        return self._arithmetic_op(other, "add")
+
+    def __sub__(self, other):
+        """Oraliqlarni ayirish."""
+        return self._arithmetic_op(other, "subtract")
+
+    def __mul__(self, other):
+        """Oraliqlarni ko‘paytirish."""
+        return self._arithmetic_op(other, "multiply")
+
+    def __truediv__(self, other):
+        """Oraliqlarni bo‘lish."""
+        return self._arithmetic_op(other, "divide")
+
+    def _arithmetic_op(self, other, operation):
+        """Oraliqlar bilan arifmetik amallarni bajarish."""
+        if isinstance(other, Interval):
+            return self._interval_op(other, operation)
+        return self._scalar_op(other, operation)
+
+    def _interval_op(self, other, operation):
+        """Oraliq orasida arifmetik amallar."""
+        if operation == "add":
+            return Interval(self.lower + other.lower, self.upper + other.upper)
+        elif operation == "subtract":
+            return Interval(self.lower - other.upper, self.upper - other.lower)
+        elif operation == "multiply":
+            values = [self.lower * other.lower, self.lower * other.upper,
+                      self.upper * other.lower, self.upper * other.upper]
+            return Interval(min(values), max(values))
+        elif operation == "divide":
+            if other.lower <= 0 <= other.upper:
+                raise ValueError("Bo‘lish amali 0 ga bo‘lishni o‘z ichiga oladi!")
+            values = [self.lower / other.lower, self.lower / other.upper,
+                      self.upper / other.lower, self.upper / other.upper]
+            return Interval(min(values), max(values))
+
+    def _scalar_op(self, scalar, operation):
+        """Son bilan arifmetik amallar."""
+        if operation == "add":
+            return Interval(self.lower + scalar, self.upper + scalar)
+        elif operation == "subtract":
+            return Interval(self.lower - scalar, self.upper - scalar)
+        elif operation == "multiply":
+            return Interval(self.lower * scalar, self.upper * scalar)
+        elif operation == "divide":
+            if scalar == 0:
+                raise ValueError("0 ga bo‘lish mumkin emas!")
+            return Interval(self.lower / scalar, self.upper / scalar)
+
+# Misol: Intervallar bilan amallarni bajarish
+interval1 = Interval(1, 5)
+interval2 = Interval(3, 7)
+
+# Oraliqlarni qo‘shish
+result_add = interval1 + interval2
+print(f"Qo‘shish: {result_add}")
+
+# Oraliqlarni ayirish
+result_sub = interval1 - interval2
+print(f"Ayirish: {result_sub}")
+
+# Oraliqlarni ko‘paytirish
+result_mul = interval1 * interval2
+print(f"Ko‘paytirish: {result_mul}")
+
+# Oraliqlarni bo‘lish
+result_div = interval1 / interval2
+print(f"Bo‘lish: {result_div}")
